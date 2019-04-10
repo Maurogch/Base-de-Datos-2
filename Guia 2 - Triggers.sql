@@ -336,6 +336,16 @@ call calcularPromedioJugadores();
 
 select * from jugadores;
 
+    /*------Correct way to do it-------*/
+create procedure calcularPromedioJugadores2()
+begin
+    update jugadores ju 
+    set promedio = (select avg(puntos)
+                    from jugadores_x_equipo_x_partido jxp  
+                    where jxp.idJugador = ju.idJugador);   #Seems like if you send rows (more than one result) from a  
+end;                                                       #subquerry while using a condition from the table it is  
+                                                           #modifying it will do it for each row
+
 /*8 - Generar una tabla con el nombre recordsJugadores, donde se guarde la máxima
 cantidad de puntos hecha por  un jugador,  en que partido , que fecha y que edad
 poseia el jugador al momento del record.*/
