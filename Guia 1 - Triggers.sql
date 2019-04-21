@@ -45,8 +45,9 @@ BEGIN
 END;
 
 /*3- Generar un trigger que no permita ingresar los datos de un jugador a la tabla
-jugadores_x_equipo_x_partido que no haya juado el partido*/
+jugadores_x_equipo_x_partido que no haya jugado el partido*/
 
+DROP TRIGGER tib_cargaJugadorPartido;
 CREATE TRIGGER tib_cargaJugadorPartido BEFORE INSERT 
 ON jugadores_x_equipo_x_partido
 FOR EACH ROW
@@ -186,6 +187,7 @@ add column puntosEquipoLocal int default 0;
 alter table partidos
 add column puntosEquipoVisitante int default 0;
 
+drop trigger tia_refrescarPuntosPartido;
 create trigger tia_refrescarPuntosPartido after insert
 on jugadores_x_equipo_x_partido
 for each row
@@ -246,6 +248,7 @@ begin
     end if;
 end;
 
+drop trigger tua_refrescarPuntosPartido;
 create trigger tua_refrescarPuntosPartido after update
 on jugadores_x_equipo_x_partido
 for each row
