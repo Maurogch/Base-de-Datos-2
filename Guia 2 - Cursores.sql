@@ -327,7 +327,7 @@ begin
 
     declare continue handler for not found set vFin = 1;
 
-    set @sql_text = concat('create table estadisticas_',vMes,'_',vAno,'
+    set @sql_text = concat('create table if not exists estadisticas_',vMes,'_',vAno,'
     (
         idEstadisticas int auto_increment,
         idJugador int not null unique,
