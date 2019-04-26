@@ -6,7 +6,7 @@ where idEquipo = 1;
 select * from verJugadoresRiver;
 
 /*2) Realizar una vista que muestre nombre un equipo con sus jugadores*/
-#???
+#mostrar todos los equipos
 
 /*3) Realizar una vista que muestre el jugador con más puntos realizados*/
 create view verJugadorMaxPuntos as
@@ -30,6 +30,7 @@ select * from verPartidosEsteAño;
 
 /*5) Al ingresar un jugador disparar una vista que muestre como quedo compuesto el equipo*/
 #no puedo pasarle el equipo a la vista, ???
+#no hacer
 create trigger tia_cargaJugadorMostrarVista after insert
 on jugadores
 for each row
