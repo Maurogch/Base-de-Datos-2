@@ -15,7 +15,7 @@ BEGIN
     IF (vIdJugador <> 0) THEN
         SIGNAL SQLSTATE '11111' 
             SET MESSAGE_TEXT = 'Jugador ya existente',
-                MYSQL_ERRNO = 10000;
+                MYSQL_ERRNO = 1000;
     END IF;
 END;
 
