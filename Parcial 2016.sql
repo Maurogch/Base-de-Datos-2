@@ -78,7 +78,7 @@ call generar_liquidacion(1);
 /*2) Crear los triggers necesarios para garantizar las siguientes operaciones :
 ○ Restar el stock de los productos cuando se ingresa un item. (1.5 puntos)*/
 
-create trigger tia_restar_stock_item after insert
+create trigger tia_update_stock_producto after insert
 on items
 for each row
 begin
@@ -92,9 +92,23 @@ select * from productos;
 insert into items (cantidad, precio_total, idFactura, idProducto)
 values (1, 60, 5, 1);
 
-#Faltan los otros triggers? (delete update)
+create trigger tua_update_stock_producto after update
+on items
+for each row
+begin
+    update productos
+    set stock = old.cantidad - new.cantidad
+    where old.idProducto;
+end;
 
-
+create trigger tda_update_stock_producto after delete
+on items
+for each row
+begin
+    update productos
+    set stock = stock + old.cantidad
+    where old.idProducto;
+end;
 
 /*○ No insertar un item si no hay stock del producto seleccionado, además generar un
 error para identificar el problema. (1 punto).*/
@@ -122,11 +136,53 @@ begin
     end if;
 end;
 
-#falta probar el trigger
 update productos
-set stock
+set stock = 0
+where idProducto = 1;
+
+select * from productos;
+
+insert into items (cantidad, precio_total, idFactura, idProducto)
+values (3,100, 1, 1); 
+#funciona da singal
 
 /*○ Generar un registro en la tabla Alertas, cada vez que un producto quede con menos stock
 que el stock mínimo. (1.5 puntos).*/
+drop trigger tia_alert_stock;
 
+create trigger tia_alert_stock after insert
+on items
+for each row
+begin
+    declare vStock int;
+    declare vStockMinimo int;
+    declare vText text;
 
+    select stock, stock_minimo into vStock, vStockMinimo
+    from productos
+    where idProducto = new.idProducto;
+
+    if vStock <= vStockMinimo then
+        set vText = concat("Producto id: ", new.idProducto, " está por debajo del stock mínimo");
+
+        insert into alertas (descripcion, fecha)
+        values (vText, now());
+    end if;
+end;
+
+insert into items (cantidad, precio_total, idFactura, idProducto)
+values (3,100, 1, 1);
+
+select * from alertas;
+
+/*Crear una vista que liste el total liquidado para cada cliente. En caso de
+que el cliente no tenga liquidaciones asociadas, se debe mostrar 0.*/
+
+create view total_liquidado as
+select cuit, razonSocial, ifnull(sum(total),0) as total
+from clientes c
+left join liquidaciones l
+on c.idCliente = l.idCliente
+group by c.idCliente
+
+select * from total_liquidado
