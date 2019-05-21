@@ -1,4 +1,5 @@
 create database facturacion;
+use facturacion;
 
 create table clientes(
     idCliente int auto_increment,
