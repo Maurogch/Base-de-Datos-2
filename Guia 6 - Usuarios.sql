@@ -50,11 +50,24 @@ create user 'KwikEMart_Stock'@'sucursal%.kwikemart.com' identified by 'stock';
 grant select,update on kwikemart.productos to 'KwikEMart_Stock'@'sucursal%.kwikemart.com';
 grant select,update on kwikemart.stock to 'KwikEMart_Stock'@'sucursal%.kwikemart.com';
 
+#select current_user() -> returns user that created stored procedure or trigger
+#select user() -> returns user that "called" stored procedure or triggered the trigger
+#select SUBSTRING_INDEX(USER(), "@", -1) -> this will return the domain of the user
+
+#Assume there is a trigger that prevents changing the sucursal_id
+#Repeat following trigger for insert
+
 create trigger tub_modificarStock before update
 on stock
 for each row
 begin
-    if (old.sucursal_id <> new.sucursal_id) then
+    declare vHostSucursal varchar(50);
+
+    select host into vHostSucursal
+    from sucursales
+    where id = old.sucursal_id;
+
+    if (vHostSucursal <> SUBSTRING_INDEX(USER(), "@", -1)) then
         signal sqlstate '11111' 
             set message_text = 'Acceso al stock de otra sucursal prohibido',
                 mysql_errno = 1000;
@@ -66,7 +79,7 @@ end;
 #Create user for Ventas
 create user 'KwikEMart_Ventas'@'principal.kwikemart.com' identified by 'ventas';
 #Grant privileges
-grant execute on kwikemart.facturas to 'KwikEMart_Ventas'@'principal.kwikemart.com';
+grant execute on kwikemart.* to 'KwikEMart_Ventas'@'principal.kwikemart.com';
 #Ejecuta un stored procedure que devuelve lo total facturado por cada sucursal
 
 #--------------------------------------------------------------------------#
@@ -81,10 +94,17 @@ grant select on kwikemart.* to 'KwikEMart_Admin_sucursal1'@'sucursal%.kwikemart.
 #--------------------------------------------------------------------------#
 
 #Modulo gerencia corre un schedule de una api que llama a un stored procedure
-#que devuelve los datos necesario, esto sirve
+#que devuelve los datos necesario (recibe numero de sucursal), esto sirve
+
+create user 'KwikEMart_gerencia'@'principal.kwikemart.com' identified by 'gerencia';
+grant execute on kwikemart.* to 'KwikEMart_gerencia'@'principal.kwikemart.com';
 
 #suponiendo que no se puede usar un stored procedure
 #usuario de gerencia
-#persmiso selecet facturas
-#no terminado
+#persmiso selecet facturas, empleados, stock, sucursales
+
+grant select on kwikemart.facturas to 'KwikEMart_gerencia'@'principal.kwikemart.com';
+grant select on kwikemart.empleados to 'KwikEMart_gerencia'@'principal.kwikemart.com';
+grant select on kwikemart.stock to 'KwikEMart_gerencia'@'principal.kwikemart.com';
+grant select on kwikemart.sucursales to 'KwikEMart_gerencia'@'principal.kwikemart.com';
 
